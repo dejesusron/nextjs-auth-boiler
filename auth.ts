@@ -3,9 +3,36 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import authConfig from "@/auth.config";
 import { prisma } from "@/lib/prisma";
 import { getUserById } from "@/data/user";
+import { UserRole } from "@/lib/generated/prisma";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
+  pages: {
+    signIn: "/auth/login",
+    error: "/auth/error",
+  },
+  events: {
+    async linkAccount({ user }) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          emailVerified: new Date(),
+        },
+      });
+    },
+  },
   callbacks: {
+    // async signIn({ user }) {
+    //   if (!user.id) {
+    //     return false;
+    //   }
+    //   const existingUser = await getUserById(user.id);
+
+    //   if (!existingUser || !existingUser.emailVerified) {
+    //     return false;
+    //   }
+
+    //   return true;
+    // },
     async session({ token, session }) {
       console.log({
         sessionToken: token,
@@ -13,6 +40,10 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
       if (token.sub && session.user) {
         session.user.id = token.sub;
+      }
+
+      if (token.role && session.user) {
+        session.user.role = token.role as UserRole;
       }
 
       return session;
