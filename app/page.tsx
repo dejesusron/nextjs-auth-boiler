@@ -17,7 +17,7 @@ export default function Home() {
           Auth Boiler
         </h1>
         <p className="text-lg text-center mb-5">
-          A simple authentication boiler plate
+          A simple authentication boiler plate in Nextjs
         </p>
         <div className="grid place-items-center">
           <LoginButton>
